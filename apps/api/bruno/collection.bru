@@ -1,0 +1,29 @@
+meta {
+  name: Habit Tracker API
+  type: collection
+  version: 1.0.0
+}
+
+docs {
+  # Habit Tracker API Collection
+
+  This Bruno collection contains all API requests for the Habit Tracking Application.
+
+  ## Authentication
+  All requests require Convex Auth session cookie.
+
+  ## Environments
+  - `local`: Development server (localhost:3000)
+  - `production`: Production deployment
+
+  ## Structure
+  - `auth/`: Authentication and user management
+  - `boards/`: Board CRUD operations
+  - `check-ins/`: Check-in operations (supports multiple per day)
+  - `analytics/`: Statistics and insights
+
+  ## Base URL
+  Convex functions are accessed via HTTP:
+  - Local: `http://localhost:3000/api/convex`
+  - Production: `https://your-deployment.convex.cloud`
+}

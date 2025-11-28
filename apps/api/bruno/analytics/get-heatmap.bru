@@ -1,0 +1,40 @@
+meta {
+  name: Get Heatmap Data
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/query/analytics.getHeatmapData
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "boardId": "b1234567890abcdef",
+    "startDate": "2024-11-15",
+    "endDate": "2025-11-15"
+  }
+}
+
+docs {
+  Get aggregated check-in data for heatmap visualization.
+
+  **Multiple check-ins per day are aggregated!**
+
+  Example:
+  - Date: 2025-11-15
+  - Sessions: 3 check-ins (20 + 15 + 10 = 45 total)
+  - Target: 30
+  - Intensity: "high" (exceeded target by 50%)
+
+  Returns array of:
+  {
+    date: "2025-11-15",
+    totalAmount: 45,
+    checkInCount: 3,
+    intensity: "high", // none, low, medium, high
+    targetReached: true
+  }
+}

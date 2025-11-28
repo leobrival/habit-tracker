@@ -1,0 +1,33 @@
+meta {
+  name: Count Today's Check-ins
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/query/checkIns.countForToday
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "boardId": "b1234567890abcdef"
+  }
+}
+
+docs {
+  Get progress summary for today.
+
+  Useful for UI indicators like:
+  - "2 sessions today"
+  - "25/30 minutes completed"
+  - "Target reached! ✅"
+
+  Returns:
+  - count: Number of sessions today
+  - dailyTotal: Sum of all amounts
+  - target: Board's targetAmount
+  - targetReached: Boolean
+  - remainingAmount: How much more needed (or 0 if reached)
+}

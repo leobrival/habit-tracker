@@ -1,0 +1,483 @@
+openapi: 3.0.0
+info:
+  title: Habit Tracker API
+  version: 1.0.0
+  description: |
+    Convex-powered habit tracking application API.
+
+    **Authentication**: All endpoints require @convex-dev/auth session cookie.
+
+    **Base URL**: Convex functions are accessed via HTTP actions at:
+    - Local: `http://localhost:3000/api/convex`
+    - Production: `https://your-deployment.convex.cloud`
+
+    **Convex Function Format**:
+    - Queries (read): POST to `/api/query`
+    - Mutations (write): POST to `/api/mutation`
+    - Actions (scheduled): POST to `/api/action`
+
+servers:
+  - url: https://your-deployment.convex.cloud
+    description: Production
+  - url: http://localhost:3000/api/convex
+    description: Development
+
+tags:
+  - name: Authentication
+    description: User authentication and profile management
+  - name: Boards
+    description: Habit board CRUD operations
+  - name: Check-ins
+    description: Check-in operations (supports multiple per day)
+  - name: Analytics
+    description: Statistics, streaks, and insights
+
+paths:
+  /api/query/users.getCurrentUser:
+    post:
+      tags:
+        - Authentication
+      summary: Get current authenticated user
+      description: Returns the currently authenticated user's profile
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Not authenticated
+
+  /api/query/boards.list:
+    post:
+      tags:
+        - Boards
+      summary: List user's boards
+      description: Returns all boards for the authenticated user
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                includeArchived:
+                  type: boolean
+                  default: false
+                  description: Include archived boards
+      responses:
+        '200':
+          description: List of boards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Board'
+
+  /api/mutation/boards.create:
+    post:
+      tags:
+        - Boards
+      summary: Create a new board
+      description: Creates a new habit tracking board
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - unitType
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+                  example: "Morning Workout"
+                description:
+                  type: string
+                  maxLength: 500
+                emoji:
+                  type: string
+                  example: "💪"
+                color:
+                  type: string
+                  pattern: '^#[0-9A-Fa-f]{6}$'
+                  example: "#3B82F6"
+                unitType:
+                  type: string
+                  enum: [boolean, time, distance, volume, mass, calories, money, percentage, custom]
+                  example: "boolean"
+                unit:
+                  type: string
+                  description: Custom unit label (required if unitType is 'custom')
+                targetAmount:
+                  type: number
+                  minimum: 0
+                  description: Daily target for quantitative boards
+                  example: 100
+      responses:
+        '200':
+          description: Board created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  boardId:
+                    type: string
+                    example: "b1234567890abcdef"
+                  board:
+                    $ref: '#/components/schemas/Board'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "A board with this name already exists"
+
+  /api/mutation/checkIns.create:
+    post:
+      tags:
+        - Check-ins
+      summary: Create a check-in
+      description: |
+        Creates a new check-in session. **Multiple check-ins per day are allowed**.
+
+        Each check-in creates a new session with an incremented sessionNumber.
+        Streaks are calculated based on daily totals reaching the target amount.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - boardId
+              properties:
+                boardId:
+                  type: string
+                  example: "b1234567890abcdef"
+                date:
+                  type: string
+                  format: date
+                  description: Defaults to today (YYYY-MM-DD)
+                  example: "2025-11-14"
+                amount:
+                  type: number
+                  minimum: 0
+                  description: Required for quantitative boards
+                  example: 50
+                note:
+                  type: string
+                  maxLength: 500
+                  example: "Morning session"
+      responses:
+        '200':
+          description: Check-in created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checkInId:
+                    type: string
+                    example: "c1234567890abcdef"
+                  sessionNumber:
+                    type: integer
+                    description: Session number for today (1, 2, 3...)
+                    example: 2
+                  dailyTotal:
+                    type: number
+                    description: Total amount for today (sum of all sessions)
+                    example: 110
+                  targetReached:
+                    type: boolean
+                    description: Whether daily total >= target amount
+                    example: true
+                  currentStreak:
+                    type: integer
+                    example: 5
+                  longestStreak:
+                    type: integer
+                    example: 16
+                  isNewRecord:
+                    type: boolean
+                    description: Whether a new longest streak record was achieved
+                    example: true
+
+  /api/query/checkIns.listForDate:
+    post:
+      tags:
+        - Check-ins
+      summary: List check-ins for a specific date
+      description: Returns all check-in sessions for a given date (can be multiple)
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - boardId
+                - date
+              properties:
+                boardId:
+                  type: string
+                  example: "b1234567890abcdef"
+                date:
+                  type: string
+                  format: date
+                  example: "2025-11-14"
+      responses:
+        '200':
+          description: List of check-ins for this date
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CheckIn'
+
+  /api/query/checkIns.countForToday:
+    post:
+      tags:
+        - Check-ins
+      summary: Get today's check-in count and progress
+      description: Returns count, total, and target progress for today
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - boardId
+              properties:
+                boardId:
+                  type: string
+                  example: "b1234567890abcdef"
+      responses:
+        '200':
+          description: Today's stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: Number of check-in sessions today
+                    example: 2
+                  dailyTotal:
+                    type: number
+                    description: Sum of all amounts today
+                    example: 110
+                  target:
+                    type: number
+                    nullable: true
+                    description: Board's target amount
+                    example: 100
+                  targetReached:
+                    type: boolean
+                    description: Whether dailyTotal >= target
+                    example: true
+                  remainingAmount:
+                    type: number
+                    nullable: true
+                    description: How much more needed to reach target
+                    example: 0
+
+  /api/query/analytics.getBoardStats:
+    post:
+      tags:
+        - Analytics
+      summary: Get board statistics
+      description: Returns comprehensive stats for a board including streaks and completion rates
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - boardId
+              properties:
+                boardId:
+                  type: string
+                  example: "b1234567890abcdef"
+      responses:
+        '200':
+          description: Board statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardStats'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+      description: @convex-dev/auth session cookie
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "u1234567890abcdef"
+        authUserId:
+          type: string
+          example: "auth_xyz123"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        name:
+          type: string
+          example: "John Doe"
+        imageUrl:
+          type: string
+          format: uri
+        timezone:
+          type: string
+          example: "America/New_York"
+        theme:
+          type: string
+          enum: [light, dark, system]
+
+    Board:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "b1234567890abcdef"
+        userId:
+          type: string
+        name:
+          type: string
+          example: "Morning Workout"
+        description:
+          type: string
+        emoji:
+          type: string
+          example: "💪"
+        color:
+          type: string
+          example: "#3B82F6"
+        unitType:
+          type: string
+          enum: [boolean, time, distance, volume, mass, calories, money, percentage, custom]
+        unit:
+          type: string
+          description: Custom unit label
+        targetAmount:
+          type: number
+          nullable: true
+        currentStreak:
+          type: integer
+          example: 7
+        longestStreak:
+          type: integer
+          example: 14
+        totalCheckIns:
+          type: integer
+          example: 42
+        lastCheckInDate:
+          type: string
+          format: date
+          nullable: true
+        isArchived:
+          type: boolean
+          default: false
+
+    CheckIn:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "c1234567890abcdef"
+        boardId:
+          type: string
+        userId:
+          type: string
+        date:
+          type: string
+          format: date
+          example: "2025-11-14"
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp in milliseconds
+        amount:
+          type: number
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        sessionNumber:
+          type: integer
+          description: Session number for this date (1, 2, 3...)
+          example: 1
+
+    BoardStats:
+      type: object
+      properties:
+        currentStreak:
+          type: integer
+          example: 8
+        longestStreak:
+          type: integer
+          example: 14
+        totalCheckIns:
+          type: integer
+          example: 42
+        completionRate7d:
+          type: number
+          format: float
+          description: Percentage of last 7 days with check-ins
+          example: 85.7
+        completionRate30d:
+          type: number
+          format: float
+          example: 73.3
+        completionRate90d:
+          type: number
+          format: float
+          example: 68.9
+        averageAmount:
+          type: number
+          nullable: true
+          description: Average quantity (for quantitative boards)
+        totalAmount:
+          type: number
+          nullable: true
+          description: Sum of all amounts
+        bestDay:
+          type: string
+          nullable: true
+          description: Day of week with highest completion rate
+          example: "Monday"

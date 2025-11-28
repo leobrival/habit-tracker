@@ -1,0 +1,40 @@
+meta {
+  name: Get Daily Aggregates
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/query/analytics.getDailyAggregates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "boardId": "b1234567890abcdef",
+    "startDate": "2025-11-01",
+    "endDate": "2025-11-15"
+  }
+}
+
+docs {
+  Get detailed session statistics per day.
+
+  Useful for analytics dashboards showing:
+  - Number of sessions per day
+  - Total amount achieved
+  - First/last check-in times
+  - Average amount per session
+
+  Returns array of:
+  {
+    date: "2025-11-15",
+    checkInCount: 3,
+    totalAmount: 45,
+    achievedTarget: true,
+    firstCheckInTime: "08:30",
+    lastCheckInTime: "20:15",
+    averageAmount: 15
+  }
+}

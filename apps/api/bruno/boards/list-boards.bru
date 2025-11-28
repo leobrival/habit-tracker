@@ -1,0 +1,26 @@
+meta {
+  name: List Boards
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/query/boards.list
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "includeArchived": false
+  }
+}
+
+docs {
+  Get all boards for authenticated user.
+
+  Returns array of boards with:
+  - Basic info (name, emoji, color)
+  - Stats (currentStreak, longestStreak, totalCheckIns)
+  - Settings (unitType, targetAmount)
+}

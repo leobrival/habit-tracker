@@ -1,0 +1,32 @@
+baseURL = 'https://api.checker.app/docs/'
+languageCode = 'en-us'
+title = 'Checker API Documentation'
+theme = 'doks'
+
+[params]
+  description = 'API documentation for the Checker habit tracking application'
+  author = 'Checker Team'
+  github_repo = 'https://github.com/checker/checker-api'
+  version = 'v1'
+
+[menu]
+  [[menu.main]]
+    identifier = 'getting-started'
+    name = 'Getting Started'
+    url = '/getting-started/'
+    weight = 1
+  [[menu.main]]
+    identifier = 'authentication'
+    name = 'Authentication'
+    url = '/authentication/'
+    weight = 2
+  [[menu.main]]
+    identifier = 'api-reference'
+    name = 'API Reference'
+    url = '/api-reference/'
+    weight = 3
+
+[markup]
+  [markup.highlight]
+    style = 'monokai'
+    lineNos = true

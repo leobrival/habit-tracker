@@ -1,0 +1,73 @@
+{
+	"name": "habit-tracker-raycast",
+	"version": "0.1.0",
+	"title": "Checker - Habit Tracker",
+	"description": "Track your habits directly from Raycast",
+	"icon": "icon.png",
+	"author": "leobrival",
+	"categories": [
+		"Productivity"
+	],
+	"license": "MIT",
+	"commands": [
+		{
+			"name": "quick-checkin",
+			"title": "Quick Check-in",
+			"description": "Quickly check in to a habit",
+			"mode": "view",
+			"keywords": ["habit", "check", "track"]
+		},
+		{
+			"name": "list-boards",
+			"title": "List Boards",
+			"description": "View all your habit boards",
+			"mode": "view",
+			"keywords": ["boards", "habits", "view"]
+		},
+		{
+			"name": "today-status",
+			"title": "Today's Status",
+			"description": "View today's habit status",
+			"mode": "view",
+			"keywords": ["status", "today", "progress"]
+		}
+	],
+	"preferences": [
+		{
+			"name": "apiKey",
+			"title": "API Key",
+			"description": "Your Checker API key",
+			"type": "password",
+			"required": true
+		},
+		{
+			"name": "apiUrl",
+			"title": "API URL",
+			"description": "Checker API URL",
+			"type": "textfield",
+			"required": false,
+			"default": "https://api.checker.app"
+		}
+	],
+	"dependencies": {
+		"@raycast/api": "^1.92.1",
+		"@raycast/utils": "^1.19.0",
+		"node-fetch": "^3.3.2"
+	},
+	"devDependencies": {
+		"@raycast/eslint-config": "^1.0.11",
+		"@types/node": "22.15.18",
+		"@types/react": "19.1.8",
+		"eslint": "^8.57.0",
+		"prettier": "^3.5.3",
+		"typescript": "~5.8"
+	},
+	"scripts": {
+		"build": "ray build",
+		"dev": "ray develop",
+		"fix-lint": "ray lint --fix",
+		"lint": "ray lint",
+		"publish": "npx @raycast/api@latest publish",
+		"typecheck": "tsc --noEmit"
+	}
+}

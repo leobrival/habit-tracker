@@ -1,0 +1,39 @@
+meta {
+  name: Create Check-in
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/mutation/checkIns.create
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "boardId": "b1234567890abcdef",
+    "amount": 45,
+    "note": "Great session!"
+  }
+}
+
+docs {
+  Create a new check-in session.
+
+  **Multiple check-ins per day are supported!**
+
+  Example: Workout board with 30min target
+  - Morning: Create check-in with amount=20
+  - Evening: Create check-in with amount=15
+  - Result: dailyTotal=35, targetReached=true ✅
+
+  Returns:
+  - checkInId: Created check-in ID
+  - sessionNumber: Session number for today (1, 2, 3...)
+  - dailyTotal: Sum of all amounts today
+  - targetReached: Boolean (dailyTotal >= target)
+  - currentStreak: Updated streak count
+  - longestStreak: All-time best streak
+  - isNewRecord: True if longest streak was broken
+}

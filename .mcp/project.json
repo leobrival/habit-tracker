@@ -1,0 +1,15 @@
+{
+	"$schema": "https://raw.githubusercontent.com/anthropics/claude-code/main/schemas/mcp.schema.json",
+	"mcpServers": {
+		"habit-tracker": {
+			"command": "node",
+			"args": [
+				"/Users/leobrival/Developer/sass/habit-tracker/packages/mcp-server/dist/index.js"
+			],
+			"env": {
+				"CHECKER_API_URL": "http://localhost:3333",
+				"CHECKER_API_KEY": "chk_live_HhmtxydlSijsdY7mGYPh3V8WAXNtTZL3dcHOkVzg1O0"
+			}
+		}
+	}
+}

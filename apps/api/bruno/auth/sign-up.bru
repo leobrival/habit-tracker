@@ -1,0 +1,28 @@
+meta {
+  name: Sign Up
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{authUrl}}/sign-up
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "user@example.com",
+    "password": "securePassword123",
+    "name": "Test User"
+  }
+}
+
+docs {
+  Create a new user account with email and password.
+
+  Convex Auth will:
+  - Hash password securely
+  - Create session cookie
+  - Return user object
+}

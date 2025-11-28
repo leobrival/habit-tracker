@@ -1,0 +1,40 @@
+meta {
+  name: Create Board
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/mutation/boards.create
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Morning Workout",
+    "emoji": "💪",
+    "color": "#3B82F6",
+    "unitType": "time",
+    "unit": "minutes",
+    "targetAmount": 30
+  }
+}
+
+docs {
+  Create a new habit tracking board.
+
+  Unit Types:
+  - boolean: Yes/No tracking
+  - time: Minutes
+  - distance: Kilometers
+  - volume: Liters
+  - mass: Kilograms
+  - calories: Calories
+  - money: Currency
+  - percentage: Percentage
+  - custom: Custom unit
+
+  Returns:
+  - boardId: Created board ID
+}

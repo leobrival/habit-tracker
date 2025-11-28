@@ -106,20 +106,13 @@ const ListBoardsSchema = z
 
 const CreateBoardSchema = z
 	.object({
-		name: z
-			.string()
-			.min(1)
-			.max(100)
-			.describe("Name of the habit board"),
+		name: z.string().min(1).max(100).describe("Name of the habit board"),
 		description: z
 			.string()
 			.max(500)
 			.optional()
 			.describe("Description of the habit"),
-		emoji: z
-			.string()
-			.default("✅")
-			.describe("Emoji icon for the board"),
+		emoji: z.string().default("✅").describe("Emoji icon for the board"),
 		color: z
 			.string()
 			.default("#10B981")
@@ -127,7 +120,9 @@ const CreateBoardSchema = z
 		unit_type: z
 			.enum(["boolean", "quantity", "duration"])
 			.default("boolean")
-			.describe("Type of tracking: boolean (done/not done), quantity, or duration"),
+			.describe(
+				"Type of tracking: boolean (done/not done), quantity, or duration",
+			),
 		unit: z
 			.string()
 			.optional()
@@ -153,7 +148,11 @@ const UpdateBoardSchema = z
 		description: z.string().max(500).optional().describe("New description"),
 		emoji: z.string().optional().describe("New emoji"),
 		color: z.string().optional().describe("New color"),
-		target_amount: z.number().positive().optional().describe("New target amount"),
+		target_amount: z
+			.number()
+			.positive()
+			.optional()
+			.describe("New target amount"),
 	})
 	.strict();
 
@@ -359,7 +358,9 @@ Returns:
 	},
 	async (params) => {
 		try {
-			const board = await makeApiRequest<Board>(`/v1/boards/${params.board_id}`);
+			const board = await makeApiRequest<Board>(
+				`/v1/boards/${params.board_id}`,
+			);
 
 			const text = `# ${board.emoji} ${board.name}
 
@@ -409,13 +410,17 @@ Returns:
 	async (params) => {
 		try {
 			const { board_id, ...updates } = params;
-			const board = await makeApiRequest<Board>(`/v1/boards/${board_id}`, "PUT", {
-				name: updates.name,
-				description: updates.description,
-				emoji: updates.emoji,
-				color: updates.color,
-				targetAmount: updates.target_amount,
-			});
+			const board = await makeApiRequest<Board>(
+				`/v1/boards/${board_id}`,
+				"PUT",
+				{
+					name: updates.name,
+					description: updates.description,
+					emoji: updates.emoji,
+					color: updates.color,
+					targetAmount: updates.target_amount,
+				},
+			);
 
 			return {
 				content: [
@@ -488,10 +493,14 @@ Returns:
 	},
 	async (params) => {
 		try {
-			const checkin = await makeApiRequest<CheckIn>("/v1/quick/check-in", "POST", {
-				boardId: params.board_id,
-				amount: params.amount,
-			});
+			const checkin = await makeApiRequest<CheckIn>(
+				"/v1/quick/check-in",
+				"POST",
+				{
+					boardId: params.board_id,
+					amount: params.amount,
+				},
+			);
 
 			return {
 				content: [
@@ -591,7 +600,9 @@ Returns:
 			}
 
 			const text = checkins
-				.map((c) => `- **${c.date}**: ${c.amount}${c.note ? ` - ${c.note}` : ""}`)
+				.map(
+					(c) => `- **${c.date}**: ${c.amount}${c.note ? ` - ${c.note}` : ""}`,
+				)
 				.join("\n");
 
 			return { content: [{ type: "text", text }] };

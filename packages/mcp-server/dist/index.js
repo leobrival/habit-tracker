@@ -58,20 +58,13 @@ const ListBoardsSchema = z
     .strict();
 const CreateBoardSchema = z
     .object({
-    name: z
-        .string()
-        .min(1)
-        .max(100)
-        .describe("Name of the habit board"),
+    name: z.string().min(1).max(100).describe("Name of the habit board"),
     description: z
         .string()
         .max(500)
         .optional()
         .describe("Description of the habit"),
-    emoji: z
-        .string()
-        .default("✅")
-        .describe("Emoji icon for the board"),
+    emoji: z.string().default("✅").describe("Emoji icon for the board"),
     color: z
         .string()
         .default("#10B981")
@@ -103,7 +96,11 @@ const UpdateBoardSchema = z
     description: z.string().max(500).optional().describe("New description"),
     emoji: z.string().optional().describe("New emoji"),
     color: z.string().optional().describe("New color"),
-    target_amount: z.number().positive().optional().describe("New target amount"),
+    target_amount: z
+        .number()
+        .positive()
+        .optional()
+        .describe("New target amount"),
 })
     .strict();
 const DeleteBoardSchema = z
